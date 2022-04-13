@@ -1,0 +1,83 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\usepackage{natbib}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{animate}
+
+\lstset{basicstyle=\ttfamily,breaklines=true}
+\lstset{aboveskip=1em,belowskip=1em,frame=single}
+
+\title{Including animations in \LaTeX{} documents}
+\author{Arthur Nishikawa}
+\date{April 13, 2022}
+
+\begin{document}
+
+\maketitle
+
+There are a few different options, but the one I had more success with is using the \verb+animate+ package. However, this will \textbf{only work with PDF viewers that support JavaScript}, like \href{https://www.adobe.com/acrobat/pdf-reader.html}{Adobe Reader} or \href{https://pdf-xchange.eu/pdf-xchange-editor/}{PDF-XChange} (on Ubuntu is installed with Wine and runs smoothly). Funnily, as far as I know, browser readers do not support JavaScript!
+
+A basic header looks like this:
+
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[language=tex]
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\usepackage{graphicx}
+\usepackage{animate}
+\end{lstlisting}
+\end{minipage}
+
+You need to have the frames you want to animate saved somewhere with the names being indexed with numbers (see Fig. \ref{fig:gif_files}).
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=.9\textwidth]{img/frame_files.pdf}
+  \caption{Gif split into frame files}
+  \label{fig:gif_files}
+\end{figure}
+
+If you have a your animation as a gif, but not as separate frames, you can split it using \verb+imagemagick+'s \verb+convert+ command (\href{https://imagemagick.org/index.php}{imagemagick.org}):
+
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[language=bash]
+convert -coalesce cute_gif.gif cute_frame_%05d.pdf
+\end{lstlisting}
+\end{minipage}
+
+I suggest to always embed images (in this case, frames) that are in the same format as the document that you want to generate. This makes the compilation much faster. For that reason, I normally include images already in the pdf format.
+
+Then, you use the \verb+\animategraphics+ command to include the animation:
+
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[language=tex]
+\begin{figure}
+  \centering
+  \animategraphics[loop,autoplay,width=.5\textwidth]{30}{img/cute_gif/cute_frame_}{00000}{00023}
+  \caption{Example of animation}
+  \label{gif:cute_animation}
+\end{figure}
+\end{lstlisting}
+\end{minipage}
+
+\verb+[loop,autoplay,width=.5\textwidth]+ are self-explanatory options, \verb+{30}+ is the frame rate in fps, \verb+img/cute_gif/cute_+ is the base name, and \verb+{00000}{00023}+ are the indices of the first and last frames (what goes after the base name). \verb+animate+ guesses the extension automatically.
+
+The final result:
+
+\begin{figure}[!htbp]
+  \centering
+  \animategraphics[loop,autoplay,width=.5\textwidth]{30}{img/cute_gif/cute_frame_}{00000}{00023}
+  \caption{Example of animation. You can only properly view it in a PDF viewer that support JavaScript, otherwise it will be frozen in the first frame.}
+  \label{gif:cute_animation}
+\end{figure}
+
+\end{document}
